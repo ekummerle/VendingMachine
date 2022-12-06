@@ -1,0 +1,43 @@
+﻿Vending Machine
+--------------------
+
+General Details
+********************
+Application with GUI to emulate a vending machine.
+While the requirements are quite explicit, design to requirements, but allow room for the program to evolve. For example, the requirements state that all cans are the same price, but if we have one of the properties of a can be its price, we can set individual prices in the future.
+Use .NET 6 Web API for backend solution to provide functions for performing CRUD operations on the data.
+Use Angular to provide a front end for showing all the required details.
+While not required use SignalR to handle updates of the frontend. This allows the API to be run directly over the internet, as opposed to just via the UI. This would allow someone in the backend to manually update something in the system via the API, and have the UI update in real time. (This might be bonus functionality)
+
+Design Decisions
+*******************
+Use a list to store the can stock for the vending machine, and a configuration value to set the limit of can types in the system. This allows for the software to be used on different models of vending machine that may have different number of can types that they can stock. (fix to 10 for starters)
+Use a configuration value to store the value of cans.
+
+Each can type can have the following properties:
+ID - a unique identifier
+Flavour - the flavour of the can
+Image - an image to show in the UI
+StockLimit - the maximum number of cans of this flavour (may leave this out and assume 20 for each flavour for initial implementation)
+CurrentStock - the current number of cans of this flavour
+Price - the price for a single can, will be null by default (may leave this off initially and add if time. this would be a nullable value and we would use the set value if there is one, otherwise the value saved in the config)
+
+We also need to log a list of transactions including the following details:
+ID - a unique identifier
+CanTypeID - a foreign key referencing the id of the can type sold
+PaymentType - Whether the transaction was via cash or card
+DateTime - the date and time of the transaction
+Amount - the amount of the transaction. (this can be left off initially as we know that it is the exact amount and that the prices can't change, but may add some flexibility if there is time)
+
+Add some error handling around receiving a payment and ejecting a can, e.g. if there are no more cans to eject then reject the transaction, if more than one can is ejected or no cans are ejected, i.e. there is an exception, then reject the transaction and log the error.
+
+The design mentioned above keeps track of thee numbers of cans available for each flavour, as well as the transactions in the system linked to a can type, so we can report on the revenue for each flavour and perform reporting such as which is the most popular flavour, which is the least popular, etc.
+
+The amount of cash in the machine, the amount of credit card payments in the machine, and the number of cans sold can all be derived from the transaction data.
+
+We will assume that in a real world scenario the transaction history would be imported into another system before being wipe from the vending machine.
+
+We will assume that there is a limit to the number of each type of can that The amount of cans added for each flavour cannot exceed that limit. Any cans above the limit will be ignored during the restocking process.
+
+The API endpoints exposed will be as follows:
+
