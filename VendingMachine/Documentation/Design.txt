@@ -14,20 +14,22 @@ Design Decisions
 Use a list to store the can stock for the vending machine, and a configuration value to set the limit of can types in the system. This allows for the software to be used on different models of vending machine that may have different number of can types that they can stock. (fix to 10 for starters)
 Use a configuration value to store the value of cans.
 
-Each can type can have the following properties:
+Each product can have the following properties:
 ID - a unique identifier
-Flavour - the flavour of the can
+Name - the name of the product (flavour of the can)
 Image - an image to show in the UI
-StockLimit - the maximum number of cans of this flavour (may leave this out and assume 20 for each flavour for initial implementation)
-CurrentStock - the current number of cans of this flavour
-Price - the price for a single can, will be null by default (may leave this off initially and add if time. this would be a nullable value and we would use the set value if there is one, otherwise the value saved in the config)
+StockLimit - the maximum number allow of this product (may leave this out and assume 20 for each product for initial implementation)
+CurrentStock - the current number available of this product
+Price - the price for a single product, will be null by default (may leave this off initially and add if time. this would be a nullable value and we would use the set value if there is one, otherwise the value saved in the config)
 
 We also need to log a list of transactions including the following details:
 ID - a unique identifier
-CanTypeID - a foreign key referencing the id of the can type sold
+ProductID - a foreign key referencing the id of the product sold. Will be null by default.
 PaymentType - Whether the transaction was via cash or card
-DateTime - the date and time of the transaction
+CreatedDateTime - the date and time the transaction was created
+LastUpdated - when the transaction was last updated.
 Amount - the amount of the transaction. (this can be left off initially as we know that it is the exact amount and that the prices can't change, but may add some flexibility if there is time)
+Status - the status of the transaction, i.e. success, cancelled or error (error will be returned when a transaction fails because there is an error, and cancelled with be returned when there are). Will be null by default.
 
 Add some error handling around receiving a payment and ejecting a can, e.g. if there are no more cans to eject then reject the transaction, if more than one can is ejected or no cans are ejected, i.e. there is an exception, then reject the transaction and log the error.
 
@@ -35,9 +37,19 @@ The design mentioned above keeps track of thee numbers of cans available for eac
 
 The amount of cash in the machine, the amount of credit card payments in the machine, and the number of cans sold can all be derived from the transaction data.
 
-We will assume that in a real world scenario the transaction history would be imported into another system before being wipe from the vending machine.
+There will also be variables to keep track of the amount of cash in the system, and the amount of credit card transactions in the system.
 
 We will assume that there is a limit to the number of each type of can that The amount of cans added for each flavour cannot exceed that limit. Any cans above the limit will be ignored during the restocking process.
 
+I will store the data in a DB if I have time, though as pointed out, this is not required. Obviously the problem with this implementation in a real world scenario is that if the power is stopped for some reason, e.g. turned off at the switch, power outage, etc., then all the information is lost, which doesn't make for a great system.
+
 The API endpoints exposed will be as follows:
 
+GetProducts - A function to get all Products and their current details
+GetCashPayments - A function to return all the successful transactions paid by cash
+GetCreditCardPayments - A function to return all the successful credit card transactions.
+CreateTransaction - A function to create a transaction in the system. This relates to the real world scenario of inserting your money or tapping/swiping your card. Takes a payment type as input.
+SelectProduct - A function to select and dispense the product. This relates to the real world scenario of selecting the product to purchase. Takes a transaction id and product id as input.
+RestockProduct - A function to restock an individual product. Takes a product id, with an optional count as input. The count is the number of products to restock, with a null value meaning to restock to max.
+RestockAll - A function to restock all products to their stock limits.
+ClearFunds - A function to reset the amount of cash and credit card payments in the system.
