@@ -11,13 +11,12 @@ While not required use SignalR to handle updates of the frontend. This allows th
 
 Design Decisions
 *******************
-Use a list to store the can stock for the vending machine, and a configuration value to set the limit of can types in the system. This allows for the software to be used on different models of vending machine that may have different number of can types that they can stock. (fix to 10 for starters)
-Use a configuration value to store the value of cans.
+Use a list to store the can stock for the vending machine. This will be an array of size 10.
 
 Each product can have the following properties:
 ID - a unique identifier
 Name - the name of the product (flavour of the can)
-Image - an image to show in the UI
+Image - an image to show in the UI (for this version I will use an icon with a colour. This field will hold the colour)
 StockLimit - the maximum number allow of this product (may leave this out and assume 20 for each product for initial implementation)
 CurrentStock - the current number available of this product
 Price - the price for a single product, will be null by default (may leave this off initially and add if time. this would be a nullable value and we would use the set value if there is one, otherwise the value saved in the config)
@@ -27,9 +26,15 @@ ID - a unique identifier
 ProductID - a foreign key referencing the id of the product sold. Will be null by default.
 PaymentType - Whether the transaction was via cash or card
 CreatedDateTime - the date and time the transaction was created
-LastUpdated - when the transaction was last updated.
+LastUpdatedDateTime - when the transaction was last updated.
 Amount - the amount of the transaction. (this can be left off initially as we know that it is the exact amount and that the prices can't change, but may add some flexibility if there is time)
-Status - the status of the transaction, i.e. success, cancelled or error (error will be returned when a transaction fails because there is an error, and cancelled with be returned when there are). Will be null by default.
+Status - the status of the transaction, i.e. success, cancelled or error (error will be returned when a transaction fails because there is an error, and cancelled will be returned if the user decides to cancel the transaction). This relates to an enum. Will be Created by default.
+
+We will have a TransactionStatus enum with the following values:
+Created
+Success
+Failed
+Cancelled
 
 Add some error handling around receiving a payment and ejecting a can, e.g. if there are no more cans to eject then reject the transaction, if more than one can is ejected or no cans are ejected, i.e. there is an exception, then reject the transaction and log the error.
 
@@ -49,7 +54,8 @@ GetProducts - A function to get all Products and their current details
 GetCashPayments - A function to return all the successful transactions paid by cash
 GetCreditCardPayments - A function to return all the successful credit card transactions.
 CreateTransaction - A function to create a transaction in the system. This relates to the real world scenario of inserting your money or tapping/swiping your card. Takes a payment type as input.
-SelectProduct - A function to select and dispense the product. This relates to the real world scenario of selecting the product to purchase. Takes a transaction id and product id as input.
+CancelTransaction - A function to cancel a transaction. This relates to the real world scenario where a transaction is cancelled and the money is returned to the user.
+SellProduct - A function to select and dispense the product. This relates to the real world scenario of selecting the product to purchase. Takes a transaction id and product id as input.
 RestockProduct - A function to restock an individual product. Takes a product id, with an optional count as input. The count is the number of products to restock, with a null value meaning to restock to max.
 RestockAll - A function to restock all products to their stock limits.
 ClearFunds - A function to reset the amount of cash and credit card payments in the system.
