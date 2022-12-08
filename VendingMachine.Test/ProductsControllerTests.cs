@@ -10,13 +10,15 @@ namespace VendingMachine.Test
     /// </summary>
     public class ProductsControllerTests
     {
-        private static DataContext context;
+        private DataContext context;
         private ProductsController productsController;
+        private TransactionsController transactionsController;
 
         public ProductsControllerTests()
         {
             context = new DataContext();
             productsController = new ProductsController(context);
+            transactionsController = new TransactionsController(context);
         }
 
         [Fact]
@@ -76,31 +78,67 @@ namespace VendingMachine.Test
         [Fact]
         public void CheckUsedTransaction()
         {
-            // TODO
+            var result = transactionsController.CreateTransaction("Cash") as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var transaction = result.Value as Transaction;
+
+            result = productsController.SellProduct(1, transaction.ID) as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var result2 = productsController.SellProduct(1, transaction.ID) as BadRequestObjectResult;
+
+            Assert.NotNull(result2);
+            Assert.Equal("Invalid transaction - Transaction already processed", result2.Value.ToString());
         }
 
         [Fact]
         public void CheckNoStock()
         {
-            // TODO
-        }
+            context.Products[1].CurrentStock = 0;
 
-        [Fact]
-        public void CheckInvalidPaymentMethod()
-        {
-            // TODO
+            var result = transactionsController.CreateTransaction("Cash") as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var transaction = result.Value as Transaction;
+
+            var result2 = productsController.SellProduct(2, transaction.ID) as BadRequestObjectResult;
+
+            Assert.NotNull(result2);
+            Assert.Equal("Out of stock", result2.Value.ToString());
         }
 
         [Fact]
         public void CheckSuccessfullSale()
         {
-            // TODO
+            var result = transactionsController.CreateTransaction("Cash") as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var transaction = result.Value as Transaction;
+
+            result = productsController.SellProduct(1, transaction.ID) as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var result2 = productsController.SellProduct(1, transaction.ID) as BadRequestObjectResult;
+
+            Assert.NotNull(result2);
+            Assert.Equal("Invalid transaction - Transaction already processed", result2.Value.ToString());
         }
 
         [Fact]
         public void CheckRestockAll()
         {
-            var result = productsController.RestockAll() as OkObjectResult;
+            var result = productsController.RestockAll() as OkResult;
 
             Assert.NotNull(result);
 

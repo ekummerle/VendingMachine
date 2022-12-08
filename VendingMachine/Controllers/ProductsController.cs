@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Transactions;
 using VendingMachine.Contexts;
+using VendingMachine.Models;
 
 namespace VendingMachine.Controllers
 {
     /// <summary>
-    /// A controller for handling acctions against the products.
+    /// A controller for handling actions against the products.
     /// </summary>
     public class ProductsController : Controller
     {
@@ -79,16 +79,18 @@ namespace VendingMachine.Controllers
 
             if (product.CurrentStock == 0)
             {
-                transaction.Status = Models.TransactionStatus.Failed;
+                transaction.Status = TransactionStatus.Failed;
                 return BadRequest("Out of stock");
             }
 
             try
             {
                 ProcessPayment(transaction);
+                transaction.Status = TransactionStatus.Success;
             }
             catch (Exception e)
             {
+                transaction.Status = TransactionStatus.Failed;
                 return BadRequest(e.Message);
             }
 
@@ -132,6 +134,8 @@ namespace VendingMachine.Controllers
         /// A function to restock all products.
         /// </summary>
         /// <returns>A success status.</returns>
+        [HttpPost]
+        [Route("RestockAll")]
         public IActionResult RestockAll()
         {
             foreach (var product in _data.Products)
@@ -151,24 +155,29 @@ namespace VendingMachine.Controllers
         /// </summary>
         /// <param name="transaction">The transaction to process.</param>
         /// <exception cref="Exception">The exception outlining thee details of any errors encountered.</exception>
-        private void ProcessPayment(Models.Transaction transaction)
+        private void ProcessPayment(Transaction transaction)
         {
-            if (transaction.PaymentType != "Cash" && transaction.PaymentType != "Card")
-            {
-                throw new Exception("Invalid payment type");
-            }
-
             if (transaction.PaymentType == "Card")
             {
                 try
                 {
                     // Process card payment with bank/financial institution.
                 }
-                catch (Exception e)
+                catch
                 {
                     // Log the true error here and return a user friendly one.
                     throw new Exception("Card payment failed");
                 }
+            }
+
+            switch (transaction.PaymentType)
+            {
+                case "Cash":
+                    _data.CashAmount += transaction.Amount;
+                    break;
+                case "Card":
+                    _data.CardAmount += transaction.Amount;
+                    break;
             }
         }
 

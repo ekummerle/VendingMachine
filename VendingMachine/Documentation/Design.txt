@@ -51,11 +51,11 @@ I will store the data in a DB if I have time, though as pointed out, this is not
 The API endpoints exposed will be as follows:
 
 GetProducts - A function to get all Products and their current details
-GetCashPayments - A function to return all the successful transactions paid by cash
-GetCreditCardPayments - A function to return all the successful credit card transactions.
+GetPayments - A function to return all the successful transactions. Takes a string that can be used to filter the transaction types. A null value will return all transactions.	
 CreateTransaction - A function to create a transaction in the system. This relates to the real world scenario of inserting your money or tapping/swiping your card. Takes a payment type as input.
-CancelTransaction - A function to cancel a transaction. This relates to the real world scenario where a transaction is cancelled and the money is returned to the user.
+CancelTransaction - A function to cancel a transaction. This relates to the real world scenario where a transaction is cancelled and the money is returned to the user. Takes the transaction id as input.
 SellProduct - A function to select and dispense the product. This relates to the real world scenario of selecting the product to purchase. Takes a transaction id and product id as input.
 RestockProduct - A function to restock an individual product. Takes a product id, with an optional count as input. The count is the number of products to restock, with a null value meaning to restock to max.
 RestockAll - A function to restock all products to their stock limits.
 ClearFunds - A function to reset the amount of cash and credit card payments in the system.
+GetPaymentAmount - A function to get the payment amount for a given transaction type. Takes a payment type as input. A null value will return the total transaction amount.

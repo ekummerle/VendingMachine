@@ -14,17 +14,17 @@ namespace VendingMachine.Contexts
         /// <summary>
         /// The list of transactions in the system.
         /// </summary>
-        public IEnumerable<Transaction> Transactions { get; private set; } = new List<Transaction>();
+        public List<Transaction> Transactions { get; private set; } = new List<Transaction>();
 
         /// <summary>
         /// The total amount of cash payments in the system.
         /// </summary>
-        public decimal CashAmount { get; private set; } = 0;
+        public decimal CashAmount { get; set; } = 0;
 
         /// <summary>
         /// The total amount of card payments in the system.
         /// </summary>
-        public decimal CardAmount { get; private set; } = 0;
+        public decimal CardAmount { get; set; } = 0;
 
         #endregion
 
