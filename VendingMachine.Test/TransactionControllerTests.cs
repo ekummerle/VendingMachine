@@ -152,7 +152,7 @@ namespace VendingMachine.Test
             var cashPayments = result.Value as IEnumerable<Transaction>;
 
             Assert.NotNull(cashPayments);
-            Assert.Equal(5, cashPayments.Count());
+            Assert.Equal(11, cashPayments.Count());
         }
 
         // TODO write the rest of the tests.
