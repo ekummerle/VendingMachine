@@ -52,7 +52,7 @@ namespace VendingMachine.Controllers
         /// <returns>The update product.</returns>
         [HttpPost]
         [Route("SellProduct/{id}")]
-        public IActionResult SellProduct(int id, [FromBody]int transactionId)
+        public IActionResult SellProduct(int id)
         {
             var product = _data.Products.FirstOrDefault(p => p.ID == id);
 
@@ -61,21 +61,20 @@ namespace VendingMachine.Controllers
                 return BadRequest("Product not found");
             }
 
-            var transaction = _data.Transactions.FirstOrDefault(t => t.ID == transactionId);
+            var transaction = _data.Transactions.LastOrDefault();
 
             if (transaction == null)
             {
                 return BadRequest("Transaction not found");
             }
 
-            if (transaction.ProductID.HasValue)
+            if (transaction.Status != TransactionStatus.Created)
             {
                 return BadRequest("Invalid transaction - Transaction already processed");
             }
 
             transaction.LastUpdatedDateTime = DateTime.Now;
             transaction.ProductID = product.ID;
-            transaction.Amount = product.Price;
 
             if (product.CurrentStock == 0)
             {

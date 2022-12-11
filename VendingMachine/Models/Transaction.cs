@@ -40,7 +40,7 @@
         /// <summary>
         /// The amount of the transaction.
         /// </summary>
-        public decimal Amount { get; set; }
+        public decimal Amount { get; set; } = 2.40m;
 
         /// <summary>
         /// The status of the transaction.

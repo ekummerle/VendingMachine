@@ -60,7 +60,7 @@ namespace VendingMachine.Test
         [Fact]
         public void CheckSellInvalidProduct()
         {
-            var result = productsController.SellProduct(20, 1) as BadRequestObjectResult;
+            var result = productsController.SellProduct(20) as BadRequestObjectResult;
 
             Assert.NotNull(result);
             Assert.Equal("Product not found", result.Value.ToString());
@@ -69,7 +69,7 @@ namespace VendingMachine.Test
         [Fact]
         public void CheckSellInvalidTransaction()
         {
-            var result = productsController.SellProduct(1, 1) as BadRequestObjectResult;
+            var result = productsController.SellProduct(1) as BadRequestObjectResult;
 
             Assert.NotNull(result);
             Assert.Equal("Transaction not found", result.Value.ToString());
@@ -85,12 +85,12 @@ namespace VendingMachine.Test
 
             var transaction = result.Value as Transaction;
 
-            result = productsController.SellProduct(1, transaction.ID) as OkObjectResult;
+            result = productsController.SellProduct(1) as OkObjectResult;
 
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
 
-            var result2 = productsController.SellProduct(1, transaction.ID) as BadRequestObjectResult;
+            var result2 = productsController.SellProduct(1) as BadRequestObjectResult;
 
             Assert.NotNull(result2);
             Assert.Equal("Invalid transaction - Transaction already processed", result2.Value.ToString());
@@ -108,7 +108,7 @@ namespace VendingMachine.Test
 
             var transaction = result.Value as Transaction;
 
-            var result2 = productsController.SellProduct(2, transaction.ID) as BadRequestObjectResult;
+            var result2 = productsController.SellProduct(2) as BadRequestObjectResult;
 
             Assert.NotNull(result2);
             Assert.Equal("Out of stock", result2.Value.ToString());
@@ -124,12 +124,12 @@ namespace VendingMachine.Test
 
             var transaction = result.Value as Transaction;
 
-            result = productsController.SellProduct(1, transaction.ID) as OkObjectResult;
+            result = productsController.SellProduct(1) as OkObjectResult;
 
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
 
-            var result2 = productsController.SellProduct(1, transaction.ID) as BadRequestObjectResult;
+            var result2 = productsController.SellProduct(1) as BadRequestObjectResult;
 
             Assert.NotNull(result2);
             Assert.Equal("Invalid transaction - Transaction already processed", result2.Value.ToString());
