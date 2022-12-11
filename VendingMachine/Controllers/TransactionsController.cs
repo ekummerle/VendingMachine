@@ -56,7 +56,14 @@ namespace VendingMachine.Controllers
         {
             if (paymentType != "Cash" && paymentType != "Card")
             {
-                throw new Exception("Invalid payment type");
+                return BadRequest("Invalid payment type");
+            }
+
+            var lastTrans = _data.Transactions.LastOrDefault();
+
+            if (lastTrans != null && lastTrans.Status == TransactionStatus.Created)
+            {
+                return BadRequest("There is already an active transaction");
             }
 
             Transaction transaction = new()
@@ -74,13 +81,12 @@ namespace VendingMachine.Controllers
         /// <summary>
         /// A function to cancel a transaction.
         /// </summary>
-        /// <param name="transactionId">The id of the transaction to cancel.</param>
         /// <returns>Thee updated transaction.</returns>
         [HttpPost]
-        [Route("CancelTransaction/{id}")]
-        public IActionResult CancelTransaction(int id)
+        [Route("CancelTransaction")]
+        public IActionResult CancelTransaction()
         {
-            var transaction = _data.Transactions.FirstOrDefault(t => t.ID == id);
+            var transaction = _data.Transactions.LastOrDefault();
 
             if (transaction == null)
             {
