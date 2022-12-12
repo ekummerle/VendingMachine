@@ -78,7 +78,6 @@ namespace VendingMachine.Controllers
 
             if (product.CurrentStock == 0)
             {
-                transaction.Status = TransactionStatus.Failed;
                 return BadRequest("Out of stock");
             }
 

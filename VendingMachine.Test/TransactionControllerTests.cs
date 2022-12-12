@@ -293,5 +293,41 @@ namespace VendingMachine.Test
             Assert.NotNull(result);
             Assert.Equal("Invalid payment type", result.Value.ToString());
         }
+
+        [Fact]
+        public void CheckGetValidActiveTransaction()
+        {
+            var result = transactionsController.CreateTransaction("Cash") as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var transaction = result.Value as Transaction;
+
+            Assert.NotNull(transaction);
+
+            result = transactionsController.GetActiveTransaction() as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var activeTrans = result.Value as Transaction;
+
+            Assert.NotNull(activeTrans);
+            Assert.Equal(transaction.ID, activeTrans.ID);
+        }
+
+        [Fact]
+        public void CheckGetInvalidActiveTransaction()
+        {
+            var result = transactionsController.GetActiveTransaction() as OkObjectResult;
+
+            Assert.NotNull(result);
+            Assert.Equal(200, result.StatusCode);
+
+            var transaction = result.Value as Transaction;
+
+            Assert.Null(transaction);
+        }
     }
 }

@@ -40,9 +40,20 @@ namespace VendingMachine.Controllers
         /// <returns>The list of payments with the given payment type.</returns>
         [HttpGet]
         [Route("GetPayments")]
-        public IActionResult GetPayments([FromBody]string paymentType)
+        public IActionResult GetPayments(string paymentType)
         {
             return Ok(_data.Transactions.Where(t => string.IsNullOrEmpty(paymentType) || t.PaymentType == paymentType));
+        }
+
+        /// <summary>
+        /// A function to get the active transaction.
+        /// </summary>
+        /// <returns>The active transaction if there is one, or null if there is not.</returns>
+        [HttpGet]
+        [Route("GetActiveTransaction")]
+        public IActionResult GetActiveTransaction()
+        {
+            return Ok(_data.Transactions.FirstOrDefault(t => t.Status == TransactionStatus.Created));
         }
 
         /// <summary>
@@ -127,7 +138,7 @@ namespace VendingMachine.Controllers
         /// <returns>The total amount for the given payment type.</returns>
         [HttpGet]
         [Route("GetPaymentAmount")]
-        public IActionResult GetPaymentAmount([FromBody]string paymentType)
+        public IActionResult GetPaymentAmount(string paymentType)
         {
             if (string.IsNullOrEmpty(paymentType))
             {
