@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using VendingMachine.Contexts;
 using VendingMachine.Controllers;
+using VendingMachine.Hubs;
 using VendingMachine.Models;
 
 namespace VendingMachine.Test
@@ -16,7 +19,10 @@ namespace VendingMachine.Test
         public TransactionControllerTests()
         {
             context = new DataContext();
-            transactionsController = new TransactionsController(context);
+            var hub = new MessageHub();
+            var mockClients = new Mock<IHubCallerClients>();
+            hub.Clients = mockClients.Object;
+            transactionsController = new TransactionsController(context, hub);
 
             context.Transactions.Add(new Transaction()
             {

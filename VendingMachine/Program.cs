@@ -1,6 +1,9 @@
 using VendingMachine.Contexts;
+using VendingMachine.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSignalR();
 
 builder.Services.AddCors(options =>
 {
@@ -20,6 +23,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<DataContext>();
+builder.Services.AddSingleton<MessageHub>();
 
 var app = builder.Build();
 
@@ -30,15 +34,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors();
-
+app.UseRouting();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action}");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<MessageHub>("/messages");
+});
+
+app.UseHttpsRedirection();
 
 app.MapControllers();
 

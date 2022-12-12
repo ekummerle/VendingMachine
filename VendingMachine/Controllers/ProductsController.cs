@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using VendingMachine.Contexts;
+using VendingMachine.Hubs;
 using VendingMachine.Models;
 
 namespace VendingMachine.Controllers
@@ -16,6 +18,11 @@ namespace VendingMachine.Controllers
         /// </summary>
         private readonly DataContext _data;
 
+        /// <summary>
+        /// The SignalR hub to send messages through.
+        /// </summary>
+        private readonly MessageHub _hub;
+
         #endregion
 
         #region Constructor
@@ -24,9 +31,11 @@ namespace VendingMachine.Controllers
         /// The constructor for the controller.
         /// </summary>
         /// <param name="data">The data context to use.</param>
-        public ProductsController(DataContext data)
+        /// <param name="hub">The SignalR hub to use for updates to the frontend.</param>
+        public ProductsController(DataContext data, MessageHub hub)
         {
             _data = data;
+            _hub = hub;
         }
 
         #endregion
@@ -172,9 +181,13 @@ namespace VendingMachine.Controllers
             {
                 case "Cash":
                     _data.CashAmount += transaction.Amount;
+                    _hub.Clients.All?.SendAsync("CashAmountUpdated", _data.CashAmount);
+                    _hub.Clients.All?.SendAsync("TotalAmountUpdated", _data.CashAmount + _data.CardAmount);
                     break;
                 case "Card":
                     _data.CardAmount += transaction.Amount;
+                    _hub.Clients.All?.SendAsync("CardAmountUpdated", _data.CardAmount);
+                    _hub.Clients.All?.SendAsync("TotalAmountUpdated", _data.CashAmount + _data.CardAmount);
                     break;
             }
         }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using VendingMachine.Contexts;
 using VendingMachine.Controllers;
+using VendingMachine.Hubs;
 using VendingMachine.Models;
 
 namespace VendingMachine.Test
@@ -17,8 +20,11 @@ namespace VendingMachine.Test
         public ProductsControllerTests()
         {
             context = new DataContext();
-            productsController = new ProductsController(context);
-            transactionsController = new TransactionsController(context);
+            var hub = new MessageHub();
+            var mockClients = new Mock<IHubCallerClients>();
+            hub.Clients = mockClients.Object;
+            productsController = new ProductsController(context, hub);
+            transactionsController = new TransactionsController(context, hub);
         }
 
         [Fact]
@@ -82,8 +88,6 @@ namespace VendingMachine.Test
 
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
-
-            var transaction = result.Value as Transaction;
 
             result = productsController.SellProduct(1) as OkObjectResult;
 
